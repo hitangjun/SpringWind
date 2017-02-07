@@ -1,0 +1,189 @@
+#override("title")
+SpringWind - 任务管理
+#end
+#override("css")
+<link href="#springUrl('/static/css/plugins/bootstrap-table/bootstrap-table.min.css')" rel="stylesheet">
+#end
+#override("breadcrumb")
+<li><a>系统监控</a></li><li class="active"><strong>任务管理</strong></li>
+#end
+#override("content")
+<div class="row">
+	<div class="ibox-content text-right form-inline" style="background: #F3F3F4;">
+		<button class="btn btn-primary" onclick="editQrtz(null)" type="button">
+		<i class="fa fa-pencil"></i>&nbsp;添加</button>
+	</div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <table id="dataTable"></table>
+    </div>
+</div>
+#end
+#override("js")
+<script src="#springUrl('/static/js/plugins/bootstrap-table/bootstrap-table.min.js')"></script>
+<script src="#springUrl('/static/js/plugins/bootstrap-table/bootstrap-table-mobile.min.js')"></script>
+<script src="#springUrl('/static/js/plugins/bootstrap-table/locale/bootstrap-table-zh-CN.min.js')"></script>
+<script src="#springUrl('/static/plugins/layer-v2.2/layer/layer.js')"></script>
+<script src="#springUrl('/static/js/base_list.js')"></script>
+<script src="#springUrl('/static/js/common.js')"></script>
+<script type="text/javascript">
+    var dataUrl = "#springUrl('/monitor/qrtz/getQrtzList.html')";
+    var dataColumns = [
+        {
+            field: 'triggerName',
+            title: '任务名'
+        },
+//        {
+//            field: 'triggerGroup',
+//            title: '触发器组'
+//        },{
+//            field: 'jobName',
+//            title: '执行任务'
+//        }, {
+//            field: 'jobGroup',
+//            title: '任务组名'
+//        },
+//        {
+//        field: 'description',
+//        title: '描述'
+//    },
+        {
+            field: 'prevFireTime',
+            title: '上次执行',
+            formatter: function (value, row, index) {
+                return formatDate(row.prevFireTime);
+            }
+        },  {
+        field: 'nextFireTime',
+        title: '下次执行时间',
+        formatter: function (value, row, index) {
+            return formatDate(row.nextFireTime);
+        }
+    }, {
+        field: 'startTime',
+        title: '开始时间',
+        formatter: function (value, row, index) {
+            return formatDate(row.startTime);
+        }
+    },
+        {
+            field: 'description',
+            title: 'Cron规则'
+        },
+        {
+            field: 'jobDataMap',
+            title: '参数'
+        },
+//        {
+//        field: 'endTime',
+//        title: '结束时间',
+//        formatter: function (value, row, index) {
+//            return formatDate(row.endTime);
+//        }
+//    },
+        {
+            field: 'triggerState',
+            title: '状态',
+            formatter: function (value, row, index) {
+                return formatStatus(row.triggerState);
+            }
+        },
+        {
+        title: '操作',
+        formatter: function (value, row, index) {
+            var id = row.id;
+            return '<a class="btn btn-xs btn-info" onclick="pauseQrtz(' + "'" + row.triggerName + "'" + ',' + "'" + row.triggerGroup + "'" + ')"><i class="fa fa-pencil"></i>暂停</a> '
+            + '<a class="btn btn-xs btn-primary" onclick="resumeQrtz(' + "'" + row.triggerName + "'" + ',' + "'" + row.triggerGroup + "'" + ')"><i class="fa fa-pencil"></i>恢复</a> '
+            + '<a class="btn btn-xs btn-danger" onclick="delQrtz(' + "'" + row.triggerName + "'" + ',' + "'" + row.triggerGroup + "'" + ')"><i class="fa fa-remove"></i>删除</a>'
+
+            ;
+        }
+    }
+    ];
+    function dataQueryParams(params) {
+        return {
+            _size: params.limit,  //页面大小
+            _index: params.offset, //页码
+        };
+    }
+
+    function delQrtz(triggerName,triggerGroup) {
+        //询问框
+        layer.confirm('确定删除吗？', {
+            btn: ['确定', '取消'] //按钮
+        }, function () {
+            $.ajax({
+                type: "POST",
+                url: "#springUrl('/monitor/qrtz/delQrtz')" +"?triggerName=" +triggerName+"&triggerGroup="+triggerGroup,
+                datatype: "text",
+                success: function (data) {
+                    if(data == 'true'){
+                        $('#dataTable').bootstrapTable('refresh',{url:dataUrl});
+                    }
+                    layer.closeAll();
+                }
+            });
+        }, function () {
+            return;
+        });
+    }
+
+    function pauseQrtz(triggerName,triggerGroup) {
+        //询问框
+        layer.confirm('确定暂停吗？', {
+            btn: ['确定', '取消'] //按钮
+        }, function () {
+            $.ajax({
+                type: "POST",
+                url: "#springUrl('/monitor/qrtz/pauseQrtz')" +"?triggerName=" +triggerName+"&triggerGroup="+triggerGroup,
+                datatype: "text",
+                success: function (data) {
+                    if(data == 'true'){
+                        $('#dataTable').bootstrapTable('refresh',{url:dataUrl});
+                    }
+                    layer.closeAll();
+                }
+            });
+        }, function () {
+            return;
+        });
+    }
+    function resumeQrtz(triggerName,triggerGroup) {
+        //询问框
+        layer.confirm('确定恢复吗？', {
+            btn: ['确定', '取消'] //按钮
+        }, function () {
+            $.ajax({
+                type: "POST",
+                url: "#springUrl('/monitor/qrtz/resumeQrtz')" +"?triggerName=" +triggerName+"&triggerGroup="+triggerGroup,
+                datatype: "text",
+                success: function (data) {
+                    if(data == 'true'){
+                        $('#dataTable').bootstrapTable('refresh',{url:dataUrl});
+                    }
+                    layer.closeAll();
+                }
+            });
+        }, function () {
+            return;
+        });
+    }
+
+function editQrtz(){
+   	var title = "新增";
+   	var url = "#springUrl('/monitor/qrtz/edit.html')";
+    layer.open({
+        type: 2,
+        title: title,
+        shadeClose: true,
+        shade: 0.8,
+        area: ['600px', '430px'],
+        fix: false,
+        maxmin: true,
+        content: url
+    });
+}
+</script>
+#end
+#extends("/common/framework.html")

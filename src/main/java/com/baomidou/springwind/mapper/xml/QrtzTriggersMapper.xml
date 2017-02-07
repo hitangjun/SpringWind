@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.baomidou.springwind.mapper.QrtzTriggersMapper">
+
+	<!-- 通用查询结果列-->
+	<sql id="Base_Column_List">
+		SCHED_NAME AS schedName, TRIGGER_NAME AS triggerName, TRIGGER_GROUP AS triggerGroup, JOB_NAME AS jobName, JOB_GROUP AS jobGroup, DESCRIPTION, NEXT_FIRE_TIME AS nextFireTime, PREV_FIRE_TIME AS prevFireTime, PRIORITY, TRIGGER_STATE AS triggerState, TRIGGER_TYPE AS triggerType, START_TIME AS startTime, END_TIME AS endTime, CALENDAR_NAME AS calendarName, MISFIRE_INSTR AS misfireInstr, JOB_DATA AS jobData
+	</sql>
+
+</mapper>
